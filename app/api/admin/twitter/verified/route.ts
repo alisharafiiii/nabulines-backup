@@ -9,7 +9,7 @@ export async function GET() {
     
     const verifiedRecords = [];
     for (const key of keys) {
-      let data = await redis.get<string>(key);
+      const data = await redis.get<string>(key);
       if (!data) {
         console.log('DEBUG - no data found for key:', key);
         continue;
