@@ -1,15 +1,33 @@
 import React from 'react';
+import { redis } from '@/app/lib/redis';
 
-export default function PassportPage() {
-  // sample twitter data for testing (replace with real data later)
-  const twitterData = {
-    id: "1458855197237821449",
-    name: "nabu.base.eth",
-    screen_name: "sharafi_eth",
-    profile_image_url: "https://pbs.twimg.com/profile_images/1911790623893422080/vxsHVWbL_normal.jpg",
-    followers_count: 74456,
-    description: "recruiting @Ledger | i do @base & u should too | financial advice: don't ape what i ape"
-  };
+export default async function PassportPage() {
+  // Get the screen name from the URL
+  const screenName = 'sharafi_eth'; // TODO: Get this from URL params or context
+
+  // Fetch Twitter data from Redis
+  const twitterDataStr = await redis.get<string>(`twitter:user:${screenName}`);
+  
+  if (!twitterDataStr) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', padding: "20px", background: "#f0f0f0", minHeight: "100vh" }}>
+        <div style={{
+          border: "5px solid #1DA1F2",
+          borderRadius: "10px",
+          padding: "20px",
+          maxWidth: "400px",
+          background: "#fff",
+          boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+          textAlign: "center"
+        }}>
+          <h2>No Twitter data found</h2>
+          <p>Please connect your Twitter account first.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const twitterData = JSON.parse(twitterDataStr);
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: "20px", background: "#f0f0f0", minHeight: "100vh" }}>

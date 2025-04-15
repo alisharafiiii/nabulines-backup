@@ -129,9 +129,6 @@ export async function GET(request: Request) {
       console.log('🧪 full twitter data dump:', JSON.stringify(testData, null, 2));
     }
 
-    // TEMPORARY: return testData to see it in response
-    // return NextResponse.json({ testData });
-
     if (!accessToken || !accessTokenSecret || !userId || !screenName) {
       console.error('Missing required tokens or user info. Full params:', Object.fromEntries(params.entries()));
       return NextResponse.json(
@@ -140,12 +137,18 @@ export async function GET(request: Request) {
       );
     }
 
-    // Store the access tokens
+    // Store the complete Twitter data
     const twitterData = {
       access_token: accessToken,
       access_token_secret: accessTokenSecret,
       user_id: userId,
       screen_name: screenName,
+      name: testData.name,
+      description: testData.description,
+      profile_image_url: testData.profile_image_url_https,
+      followers_count: testData.followers_count,
+      following_count: testData.friends_count,
+      verified: testData.verified
     };
 
     console.log('Storing Twitter data in Redis:', {
