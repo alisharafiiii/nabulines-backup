@@ -23,7 +23,7 @@ const oauth = new OAuth({
 
 export async function GET(request: Request) {
   try {
-    console.log('Twitter callback received');
+    console.log('🚨 entered twitter callback route');
     
     const { searchParams } = new URL(request.url);
     const oauthToken = searchParams.get('oauth_token');
@@ -101,6 +101,36 @@ export async function GET(request: Request) {
       userId: userId ? 'present' : 'missing',
       screenName: screenName ? 'present' : 'missing'
     });
+
+    // Test if we can fetch user data from twitter
+    const testRequestData = {
+      url: 'https://api.twitter.com/1.1/account/verify_credentials.json',
+      method: 'GET',
+    };
+
+    const testAuthHeader = oauth.toHeader(
+      oauth.authorize(testRequestData, {
+        key: accessToken as string,
+        secret: accessTokenSecret as string,
+      })
+    );
+
+    console.log('⚙️ pre-fetch: about to call verify_credentials');
+    const testRes = await fetch(testRequestData.url, {
+      method: 'GET',
+      headers: testAuthHeader,
+    });
+    console.log('⚙️ post-fetch: verify_credentials call finished');
+
+    const testData = await testRes.json();
+    if (!testRes.ok) {
+      console.error('❌ failed to fetch user data:', testRes.status, testData);
+    } else {
+      console.log('🧪 full twitter data dump:', JSON.stringify(testData, null, 2));
+    }
+
+    // TEMPORARY: return testData to see it in response
+    // return NextResponse.json({ testData });
 
     if (!accessToken || !accessTokenSecret || !userId || !screenName) {
       console.error('Missing required tokens or user info. Full params:', Object.fromEntries(params.entries()));
