@@ -182,8 +182,8 @@ export async function GET(request: Request) {
     // Clean up the temporary token
     await redis.del(`twitter:temp:${oauthToken}`);
 
-    // Redirect back to the main app
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'https://nabulines.com'}`);
+    // Redirect to passport page with screen name
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'https://nabulines.com'}/twitter/passport?screen_name=${screenName}`);
   } catch (error) {
     console.error('Twitter callback error:', error);
     if (error instanceof Error) {

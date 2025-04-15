@@ -1,9 +1,40 @@
 import React from 'react';
 import { redis } from '@/app/lib/redis';
 
-export default async function PassportPage() {
-  // Get the screen name from the URL
-  const screenName = 'sharafi_eth'; // TODO: Get this from URL params or context
+export default async function PassportPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
+  // Get the screen name from URL parameters
+  const screenName = searchParams.screen_name as string;
+  
+  if (!screenName) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        padding: "20px", 
+        background: "#f0f0f0", 
+        minHeight: "100vh",
+        fontFamily: "'Press Start 2P', cursive"
+      }}>
+        <div style={{
+          border: "5px solid #1DA1F2",
+          borderRadius: "10px",
+          padding: "20px",
+          maxWidth: "400px",
+          background: "#fff",
+          boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+          textAlign: "center",
+          imageRendering: "pixelated"
+        }}>
+          <h2 style={{ fontSize: "16px", marginBottom: "20px" }}>NO SCREEN NAME</h2>
+          <p style={{ fontSize: "12px" }}>Please provide a Twitter screen name.</p>
+        </div>
+      </div>
+    );
+  }
 
   // Fetch Twitter data from Redis
   const twitterDataStr = await redis.get<string>(`twitter:verified:${screenName}`);
