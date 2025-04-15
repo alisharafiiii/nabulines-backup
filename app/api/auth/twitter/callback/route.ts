@@ -137,21 +137,15 @@ export async function GET(request: Request) {
       );
     }
 
-    // Store the complete Twitter data
+    // Store the minimal tokens (existing flow)
     const twitterData = {
       access_token: accessToken,
       access_token_secret: accessTokenSecret,
       user_id: userId,
       screen_name: screenName,
-      name: testData.name,
-      description: testData.description,
-      profile_image_url: testData.profile_image_url_https,
-      followers_count: testData.followers_count,
-      following_count: testData.friends_count,
-      verified: testData.verified
     };
 
-    console.log('Storing Twitter data in Redis:', {
+    console.log('Storing Twitter tokens in Redis:', {
       key: `twitter:user:${screenName}`,
       data: {
         ...twitterData,
@@ -162,6 +156,28 @@ export async function GET(request: Request) {
 
     await redis.set(`twitter:user:${screenName}`, JSON.stringify(twitterData));
     console.log('Twitter credentials stored for user:', screenName);
+
+    // Store the complete verified data (new flow)
+    if (testRes.ok) {
+      const verifiedData = {
+        ...testData,
+        verified_at: new Date().toISOString(),
+        access_token: accessToken,
+        access_token_secret: accessTokenSecret
+      };
+
+      console.log('Storing verified Twitter data in Redis:', {
+        key: `twitter:verified:${screenName}`,
+        data: {
+          ...verifiedData,
+          access_token: '***' + accessToken.slice(-4),
+          access_token_secret: '***' + accessTokenSecret.slice(-4)
+        }
+      });
+
+      await redis.set(`twitter:verified:${screenName}`, JSON.stringify(verifiedData));
+      console.log('Verified Twitter data stored for user:', screenName);
+    }
 
     // Clean up the temporary token
     await redis.del(`twitter:temp:${oauthToken}`);
