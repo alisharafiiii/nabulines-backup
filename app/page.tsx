@@ -23,9 +23,25 @@ export default function App() {
   const [twitterLoginSuccess, setTwitterLoginSuccess] = useState(false);
   const [twitterUser, setTwitterUser] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showVerification, setShowVerification] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Check for TikTok verification request
+  useEffect(() => {
+    if (!isMounted) return;
+
+    const isTikTokVerify = searchParams?.get('tiktok-verify') === 'true';
+    if (isTikTokVerify) {
+      setShowVerification(true);
+    }
+  }, [searchParams, isMounted]);
+
+  // If this is a TikTok verification request, show only the verification text
+  if (showVerification) {
+    return <div>tiktok-developers-site-verification=9mCuZrAy1oofxb1Lo2Mo3ZNnCVTTeY54</div>;
+  }
+  
   // Initialize dynamic URLs
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -125,79 +141,87 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen font-sans text-white bg-black">
-      <header className="w-full max-w-7xl mx-auto px-4 pt-16 pb-4">
-        <div className="w-full flex flex-col items-center gap-4">
-          {/* Show the username if either connected with wallet or logged in with Twitter */}
-          {(isConnected || twitterUser) && username && (
-            <div className="absolute left-4 top-4" suppressHydrationWarning>
-              <span className={`text-[#00FF00] ${pressStart.className}`}>
-                {username}
-              </span>
-            </div>
-          )}
-          <div className="flex-1 flex flex-col items-center">
-            <Image
-              src="/logo.png"
-              alt="NABULINES"
-              width={128}
-              height={128}
-              priority
-              className="w-auto h-auto mb-4"
-            />
-            <h1 className={`text-2xl mb-4 ${pressStart.className}`}>NABULINES</h1>
-            <div className={`h-8 ${pressStart.className} relative flex items-center`}>
-              <TypeAnimation
-                sequence={[
-                  'welcome to The System.',
-                  5000, // Pause for 5 seconds before deleting
-                  '',
-                  500,
-                  'this isn\'t for everyone.',
-                  5000,
-                  '',
-                  500,
-                  'access isn\'t given. it\'s earned.',
-                  5000,
-                  '',
-                  500,
-                  'are you one of the real ones?',
-                  5000,
-                  '',
-                  500,
-                  'welcome to The System.',
-                  5000
-                ]}
-                wrapper="p"
-                speed={{ type: 'keyStrokeDelayInMs', value: 120 }}
-                deletionSpeed={{ type: 'keyStrokeDelayInMs', value: 80 }}
-                style={{ 
-                  fontSize: '0.8rem', 
-                  display: 'inline-block', 
-                  color: '#FFFFFF' 
-                }}
-                repeat={Infinity}
-                cursor={false}
-                omitDeletionAnimation={false}
-                className="text-white"
+    <>
+      {/* TikTok domain verification content - must be quickly discoverable by crawlers */}
+      <div id="tiktok-verification" data-testid="tiktok-verification">
+        tiktok-developers-site-verification=9mCuZrAy1oofxb1Lo2Mo3ZNnCVTTeY54
+      </div>
+      
+      <div className="flex flex-col min-h-screen font-sans text-white bg-black">
+        <header className="w-full max-w-7xl mx-auto px-4 pt-16 pb-4">
+          <div className="w-full flex flex-col items-center gap-4">
+            {/* Show the username if either connected with wallet or logged in with Twitter */}
+            {(isConnected || twitterUser) && username && (
+              <div className="absolute left-4 top-4" suppressHydrationWarning>
+                <span className={`text-[#00FF00] ${pressStart.className}`}>
+                  {username}
+                </span>
+              </div>
+            )}
+            <div className="flex-1 flex flex-col items-center">
+              <Image
+                src="/logo.png"
+                alt="NABULINES"
+                width={128}
+                height={128}
+                priority
+                className="w-auto h-auto mb-4"
               />
-              <span className="inline-block ml-[1px] w-[7px] h-[14px] bg-[#00FF00] opacity-80 animate-pulse shadow-[0_0_5px_#00FF00,0_0_10px_#00FF00]"></span>
+              <h1 className={`text-2xl mb-4 ${pressStart.className}`}>NABULINES</h1>
+              <div className={`h-8 ${pressStart.className} relative flex items-center`}>
+                <TypeAnimation
+                  sequence={[
+                    'welcome to The System.',
+                    2500, // Pause after sentence
+                    '',
+                    500,
+                    'this isn\'t for everyone.',
+                    2500,
+                    '',
+                    500,
+                    'access isn\'t given. it\'s earned.',
+                    2500,
+                    '',
+                    500,
+                    'are you one of the real ones?',
+                    2500,
+                    '',
+                    500,
+                    'welcome to The System.',
+                    2500
+                  ]}
+                  wrapper="p"
+                  // Use the "randomness" parameter for natural-feeling typing
+                  speed={{ type: 'keyStrokeDelayInMs', value: 90 }}
+                  deletionSpeed={{ type: 'keyStrokeDelayInMs', value: 70 }}
+                  style={{ 
+                    fontSize: '0.8rem', 
+                    display: 'inline-block', 
+                    color: '#FFFFFF' 
+                  }}
+                  repeat={Infinity}
+                  cursor={false}
+                  omitDeletionAnimation={false}
+                  className="text-white"
+                />
+                <span className="inline-block ml-[1px] w-[7px] h-[14px] bg-[#00FF00] opacity-80 animate-pulse shadow-[0_0_5px_#00FF00,0_0_10px_#00FF00]"></span>
+              </div>
             </div>
           </div>
+        </header>
+
+        <div className="w-full max-w-7xl mx-auto px-4 py-0">
+          <main className="flex-1 flex flex-col items-center justify-center min-h-[calc(100vh-240px)]">
+            <WalletSelector />
+          </main>
+
+          <footer className="mt-2 pt-4 flex justify-center">
+            <p className={`text-xs text-gray-500 ${pressStart.className}`}>
+              Built on Base with MiniKit
+            </p>
+          </footer>
         </div>
-      </header>
-
-      <div className="w-full max-w-7xl mx-auto px-4 py-0">
-        <main className="flex-1 flex flex-col items-center justify-center min-h-[calc(100vh-240px)]">
-          <WalletSelector />
-        </main>
-
-        <footer className="mt-2 pt-4 flex justify-center">
-          <p className={`text-xs text-gray-500 ${pressStart.className}`}>
-            Built on Base with MiniKit
-          </p>
-        </footer>
       </div>
-    </div>
+    </>
   );
 }

@@ -70,3 +70,31 @@ body::before {
 * {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+/* TikTok verification styles */
+.tiktok-verify-content {
+  position: absolute;
+  top: 0;
+  left: -9999px;
+  opacity: 0.01;
+  height: 1px;
+  overflow: hidden;
+  width: 1px;
+  z-index: -1;
+  color: transparent;
+}
+
+/* TikTok verification styles - visible to crawlers but not to users */
+#tiktok-verification {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: visible;
+  opacity: 0.01;
+  pointer-events: none;
+  color: rgba(0,0,0,0.01);
+  background: transparent;
+  z-index: -1;
+}

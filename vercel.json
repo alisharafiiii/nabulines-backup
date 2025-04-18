@@ -1,0 +1,33 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-TikTok-Verification",
+          "value": "tiktok-developers-site-verification=9mCuZrAy1oofxb1Lo2Mo3ZNnCVTTeY54"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/tiktok-verification",
+      "destination": "/tiktok-verification.txt",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*Tiktok.*"
+        }
+      ],
+      "destination": "/tiktok-verification.txt"
+    }
+  ]
+} 

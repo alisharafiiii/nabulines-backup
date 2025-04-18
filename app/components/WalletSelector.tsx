@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react'
 import { Connector } from 'wagmi'
 import { useRouter } from 'next/navigation'
 import { TypeAnimation } from 'react-type-animation';
+import dynamic from 'next/dynamic';
+import TikTokSignIn from './TikTokSignIn';
 
 // WalletSelector component for handling wallet connections and user data
 const pressStart = Press_Start_2P({ weight: "400", subsets: ["latin"] })
@@ -591,14 +593,14 @@ export default function WalletSelector() {
               onClick={() => handleConnect('coinbase')}
               className={`flex items-center justify-center w-full space-x-2 px-4 py-3 bg-black border-2 border-[#00FF00] text-white rounded hover:bg-[#00FF00] hover:text-black transition-colors ${pressStart.className}`}
             >
-              <Image src="/coinbase.svg" alt="Coinbase" width={24} height={24} className="w-6 h-6" />
+              <Image src="/cb.JPG" alt="Coinbase" width={24} height={24} className="w-6 h-6 rounded" />
               <span className="text-sm">Connect Coinbase</span>
             </button>
             <button
               onClick={() => handleConnect('phantom')}
               className={`flex items-center justify-center w-full space-x-2 px-4 py-3 bg-black border-2 border-[#00FF00] text-white rounded hover:bg-[#00FF00] hover:text-black transition-colors ${pressStart.className}`}
             >
-              <span className="text-xl">👻</span>
+              <Image src="/phantom.jpg" alt="Phantom" width={24} height={24} className="w-6 h-6 rounded" />
               <span className="text-sm">Connect Phantom</span>
             </button>
             <button
@@ -608,6 +610,9 @@ export default function WalletSelector() {
               <Image src="/twitter.jpg" alt="Twitter" width={24} height={24} className="w-6 h-6 rounded" />
               <span className="text-sm">Connect Twitter</span>
             </button>
+            
+            {/* TikTok Sign-In button */}
+            <TikTokSignIn />
           </div>
         </div>
       ) : (

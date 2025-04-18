@@ -1,0 +1,7 @@
+<!-- 
+  TikTok domain verification file
+  Replace this content with the actual verification code provided by TikTok
+  when you set up domain verification in the TikTok developer portal.
+  
+  Example: tiktok-domain-verification-1234567890abcdef1234567890abcdef
+--> 

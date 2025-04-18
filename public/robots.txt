@@ -1,0 +1,17 @@
+# Allow TikTok's webcrawler
+User-agent: Tiktokbot
+Allow: /
+Allow: /privacy/
+Allow: /terms/
+Allow: /tiktok*
+
+# Allow Google
+User-agent: Googlebot
+Allow: /
+
+# Allow all bots
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://nabulines.com/sitemap.xml 
