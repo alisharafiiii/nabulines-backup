@@ -7,19 +7,6 @@ import { redis } from '@/app/lib/redis';
 const TWITTER_API_KEY = process.env.TWITTER_API_KEY;
 const TWITTER_API_SECRET = process.env.TWITTER_API_SECRET;
 
-// Log credentials status (without exposing actual values)
-console.log('Twitter API credentials status:', {
-  hasKey: !!TWITTER_API_KEY,
-  keyLength: TWITTER_API_KEY?.length,
-  hasSecret: !!TWITTER_API_SECRET,
-  secretLength: TWITTER_API_SECRET?.length,
-  environment: process.env.NODE_ENV
-});
-
-if (!TWITTER_API_KEY || !TWITTER_API_SECRET) {
-  throw new Error('Twitter API credentials are not configured');
-}
-
 // Initialize OAuth 1.0a
 const oauth = new OAuth({
   consumer: {
@@ -37,33 +24,18 @@ const oauth = new OAuth({
 
 export async function GET(request: Request) {
   try {
-    console.log('Starting Twitter authentication...');
+    // Check if Twitter API credentials are configured
+    if (!TWITTER_API_KEY || !TWITTER_API_SECRET) {
+      console.error('Twitter API credentials are not configured');
+      return NextResponse.json(
+        { error: 'Twitter API credentials are not configured' },
+        { status: 500 }
+      );
+    }
     
     // Get the callback URL from the request
     const requestUrl = new URL(request.url);
-    const callbackUrl = requestUrl.searchParams.get('callbackUrl') || 'https://nabulines.com/api/auth/callback/twitter';
-    console.log('Callback URL:', callbackUrl);
-
-    // Endpoint for testing environment variables
-    if (requestUrl.searchParams.get('test') === 'env') {
-      return NextResponse.json({
-        status: 'success',
-        credentials: {
-          key: {
-            exists: !!TWITTER_API_KEY,
-            length: TWITTER_API_KEY?.length,
-            first2Chars: TWITTER_API_KEY?.substring(0, 2),
-            last2Chars: TWITTER_API_KEY?.substring(TWITTER_API_KEY.length - 2)
-          },
-          secret: {
-            exists: !!TWITTER_API_SECRET,
-            length: TWITTER_API_SECRET?.length,
-            first2Chars: TWITTER_API_SECRET?.substring(0, 2),
-            last2Chars: TWITTER_API_SECRET?.substring(TWITTER_API_SECRET.length - 2)
-          }
-        }
-      });
-    }
+    const callbackUrl = requestUrl.searchParams.get('callbackUrl') || 'https://nabulines.com/api/auth/twitter/callback';
 
     // Generate request token
     const requestData = {
@@ -72,19 +44,8 @@ export async function GET(request: Request) {
       data: { oauth_callback: callbackUrl }
     };
 
-    // Log the exact credentials being used
-    console.log('Using Twitter API credentials:', {
-      key: TWITTER_API_KEY,
-      secret: TWITTER_API_SECRET,
-      callbackUrl: callbackUrl
-    });
-
-    // Generate authorization header and log it
+    // Generate authorization header
     const authHeader = oauth.toHeader(oauth.authorize(requestData));
-    console.log('Full Authorization header:', authHeader);
-
-    // Log the request data being used for signing
-    console.log('Request data for signing:', requestData);
 
     // Make the request to Twitter
     const response = await fetch(requestData.url, {
@@ -97,39 +58,12 @@ export async function GET(request: Request) {
       cache: 'no-store'
     });
 
-    console.log('Request token response status:', response.status);
     const responseText = await response.text();
-    console.log('Request token response:', responseText);
 
     if (!response.ok) {
       console.error('Failed to get request token. Status:', response.status);
-      console.error('Response headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
-      console.error('Response body:', responseText);
-      
-      // Parse the error response if possible
-      let errorDetails = {};
-      try {
-        const errorParams = new URLSearchParams(responseText);
-        errorDetails = {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorParams.get('error'),
-          error_description: errorParams.get('error_description'),
-          raw_response: responseText
-        };
-      } catch {
-        errorDetails = {
-          status: response.status,
-          statusText: response.statusText,
-          raw_response: responseText
-        };
-      }
-      
       return NextResponse.json(
-        { 
-          error: 'Failed to get request token from Twitter',
-          details: errorDetails
-        },
+        { error: 'Failed to get request token from Twitter' },
         { status: response.status }
       );
     }
@@ -138,30 +72,29 @@ export async function GET(request: Request) {
     const oauthToken = params.get('oauth_token');
     const oauthTokenSecret = params.get('oauth_token_secret');
 
-    console.log('OAuth token:', oauthToken);
-    console.log('OAuth token secret:', oauthTokenSecret);
-
     if (!oauthToken || !oauthTokenSecret) {
-      console.error('Missing OAuth tokens in response. Full response:', responseText);
+      console.error('Missing OAuth tokens in response');
       return NextResponse.json(
-        { 
-          error: 'Invalid response from Twitter',
-          details: { 
-            response: responseText,
-            parsed_params: Object.fromEntries(params.entries())
-          }
-        },
+        { error: 'Invalid response from Twitter' },
         { status: 500 }
       );
     }
 
     // Store the token secret in Redis with expiration
-    await redis.set(`twitter:temp:${oauthToken}`, oauthTokenSecret, {
-      ex: 300, // 5 minutes expiration
-    });
+    try {
+      await redis.set(`twitter:temp:${oauthToken}`, oauthTokenSecret, {
+        ex: 300, // 5 minutes expiration
+      });
+    } catch (redisError) {
+      console.error('Failed to store token in Redis:', redisError);
+      return NextResponse.json(
+        { error: 'Failed to store authentication data' },
+        { status: 500 }
+      );
+    }
 
-    // Generate authorization URL without force_login parameter
-    const authUrl = `https://api.twitter.com/oauth/authorize?oauth_token=${oauthToken}`;    console.log('Authorization URL:', authUrl);
+    // Generate authorization URL
+    const authUrl = `https://api.twitter.com/oauth/authorize?oauth_token=${oauthToken}`;
 
     return NextResponse.json({ authUrl }, {
       headers: {
@@ -171,18 +104,9 @@ export async function GET(request: Request) {
       }
     });
   } catch (error) {
-    console.error('Twitter auth error:', error);
-    if (error instanceof Error) {
-      console.error('Error stack:', error.stack);
-    }
+    console.error('Twitter auth error:', error instanceof Error ? error.message : 'Unknown error');
     return NextResponse.json(
-      { 
-        error: 'Failed to authenticate with Twitter',
-        details: {
-          message: error instanceof Error ? error.message : 'Unknown error',
-          stack: error instanceof Error ? error.stack : undefined
-        }
-      },
+      { error: 'Failed to authenticate with Twitter' },
       { status: 500 }
     );
   }

@@ -62,6 +62,8 @@ export default function App() {
         try {
           const userData = JSON.parse(twitterUserData);
           setTwitterUser(userData.screen_name || null);
+          
+          // Removed the code that sets Twitter username as profile name
         } catch (e) {
           console.error('Error parsing Twitter user data:', e);
         }
@@ -200,4 +202,4 @@ export default function App() {
       </div>
     </div>
   );
-}
+} 
