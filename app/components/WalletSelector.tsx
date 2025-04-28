@@ -37,7 +37,9 @@ const socialPlatforms = {
   twitter: { icon: '/twitter.jpg', label: 'Twitter' },
   instagram: { icon: '/ig.jpg', label: 'Instagram' },
   tiktok: { icon: '/tt.jpg', label: 'TikTok' },
-  youtube: { icon: '/yt.jpg', label: 'YouTube' }
+  youtube: { icon: '/yt.jpg', label: 'YouTube' },
+  telegram: { icon: '/tg.jpg', label: 'Telegram' },
+  farcaster: { icon: '/fc.jpg', label: 'Farcaster' }
 } as const;
 
 type PlatformType = keyof typeof socialPlatforms;

@@ -38,6 +38,7 @@ export default function KOLOnboarding() {
     { id: 'tg', name: 'Telegram', image: '/tg.jpg' },
     { id: 'yt', name: 'YouTube', image: '/yt.jpg' },
     { id: 'tt', name: 'TikTok', image: '/tt.jpg' },
+    { id: 'fc', name: 'Farcaster', image: '/fc.jpg' },
   ];
 
   const followerRanges = [

@@ -166,7 +166,9 @@ function AdminPanel() {
       twitter: '#1DA1F2',
       instagram: '#E1306C',
       tiktok: '#000000',
-      youtube: '#FF0000'
+      youtube: '#FF0000',
+      telegram: '#FFFFFF',
+      farcaster: '#8A2BE2'
     };
     
     return colors[platform as keyof typeof colors] || 
@@ -571,6 +573,8 @@ function AdminPanel() {
               <option value="instagram">Instagram</option>
               <option value="tiktok">TikTok</option>
               <option value="youtube">YouTube</option>
+              <option value="telegram">Telegram</option>
+              <option value="farcaster">Farcaster</option>
             </select>
             <button
               onClick={() => {
@@ -602,6 +606,12 @@ function AdminPanel() {
                 Reset
               </button>
             )}
+            <a
+              href="/"
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors ml-2"
+            >
+              Exit
+            </a>
           </div>
         </div>
 
