@@ -27,6 +27,21 @@ const socialIcons: Record<string, string> = {
   youtube: '/yt.jpg',
 };
 
+// Add platform URL mapping function
+const getPlatformUrl = (platform: string, handle: string): string => {
+  const urlMap: Record<string, (handle: string) => string> = {
+    twitter: (h) => `https://twitter.com/${h}`,
+    instagram: (h) => `https://instagram.com/${h}`,
+    tiktok: (h) => `https://tiktok.com/@${h}`,
+    youtube: (h) => `https://youtube.com/@${h}`,
+    telegram: (h) => `https://t.me/${h}`,
+    farcaster: (h) => `https://warpcast.com/${h}`
+  };
+  
+  const urlGenerator = urlMap[platform];
+  return urlGenerator ? urlGenerator(handle) : '#';
+};
+
 export default function UserDataTable({ users }: UserDataTableProps) {
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString();
@@ -52,7 +67,16 @@ export default function UserDataTable({ users }: UserDataTableProps) {
           {users.map((user) => (
             <tr key={user.address} className="border-b border-gray-800">
               <td className="text-white p-4 text-sm break-all">{user.address}</td>
-              <td className="text-white p-4">{user.username}</td>
+              <td className="text-white p-4">
+                <a
+                  href={`/user/${user.username}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white hover:text-[#00FF00] hover:underline transition-colors"
+                >
+                  {user.username}
+                </a>
+              </td>
               <td className="text-white p-4">
                 {user.socialData.map((platform) => (
                   <div key={platform.platform} className="mb-2">
@@ -63,7 +87,14 @@ export default function UserDataTable({ users }: UserDataTableProps) {
                       height={24}
                       className="w-6 h-6 inline-block mr-2"
                     />
-                    <span>{platform.handle}</span>
+                    <a 
+                      href={getPlatformUrl(platform.platform, platform.handle)}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="hover:text-[#00FF00] hover:underline transition-colors"
+                    >
+                      {platform.handle}
+                    </a>
                   </div>
                 ))}
               </td>

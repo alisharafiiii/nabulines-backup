@@ -24,6 +24,11 @@ interface VerifiedUsersSectionProps {
   users: VerifiedUser[];
 }
 
+// Add Twitter URL mapping function
+const getTwitterUrl = (handle: string): string => {
+  return `https://twitter.com/${handle}`;
+};
+
 export default function VerifiedUsersSection({ users }: VerifiedUsersSectionProps) {
   // Track images that failed to load
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
@@ -97,7 +102,16 @@ export default function VerifiedUsersSection({ users }: VerifiedUsersSectionProp
                       </div>
                     )}
                   </div>
-                  <p className="text-[#00FF00]">@{user.screen_name}</p>
+                  <div className="text-[#00FF00]">
+                    <a 
+                      href={getTwitterUrl(user.screen_name)}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="hover:text-white hover:underline transition-colors"
+                    >
+                      @{user.screen_name}
+                    </a>
+                  </div>
                   {user.location && (
                     <p className="text-gray-400 text-xs mt-1">
                       📍 {user.location}
