@@ -66,7 +66,7 @@ export default function LeaderboardSection({ users }: LeaderboardSectionProps) {
                 <td className="text-white p-4">{index + 1}</td>
                 <td className="text-white p-4">
                   <a
-                    href={`/user/${user.username}`}
+                    href={`https://twitter.com/${user.username}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-white hover:text-[#00FF00] hover:underline transition-colors"
