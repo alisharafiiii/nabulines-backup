@@ -27,6 +27,21 @@ export default function AnalyticsSection({
     return count.toLocaleString();
   };
 
+  // Calculate percentages for platform distribution
+  const calculatePercentages = () => {
+    const total = Object.values(platformCounts).reduce((acc, count) => acc + count, 0);
+    if (total === 0) return {};
+    
+    return Object.entries(platformCounts).reduce((acc, [platform, count]) => {
+      return {
+        ...acc,
+        [platform]: Math.round((count / total) * 100)
+      };
+    }, {} as Record<string, number>);
+  };
+  
+  const percentages = calculatePercentages();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
       <div className="bg-black border-2 border-[#00FF00] p-4 rounded-lg">
@@ -59,4 +74,17 @@ export default function AnalyticsSection({
       </div>
     </div>
   );
+}
+
+// Helper function to get color for platforms
+function getPlatformColor(platform: string, index: number): string {
+  const colors = {
+    twitter: '#1DA1F2',
+    instagram: '#E1306C',
+    tiktok: '#000000',
+    youtube: '#FF0000'
+  };
+  
+  return colors[platform as keyof typeof colors] || 
+    `hsl(${(index * 70) % 360}, 70%, 50%)`; // Fallback color
 } 
