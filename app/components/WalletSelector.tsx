@@ -44,6 +44,21 @@ const socialPlatforms = {
 
 type PlatformType = keyof typeof socialPlatforms;
 
+// Add platform URL maps with template functions
+const getPlatformUrl = (platform: string, handle: string): string => {
+  const urlMap: Record<string, (handle: string) => string> = {
+    twitter: (h) => `https://twitter.com/${h}`,
+    instagram: (h) => `https://instagram.com/${h}`,
+    tiktok: (h) => `https://tiktok.com/@${h}`,
+    youtube: (h) => `https://youtube.com/@${h}`,
+    telegram: (h) => `https://t.me/${h}`,
+    farcaster: (h) => `https://warpcast.com/${h}`
+  };
+  
+  const urlGenerator = urlMap[platform];
+  return urlGenerator ? urlGenerator(handle) : '#';
+};
+
 export default function WalletSelector() {
   const { connect, connectors } = useConnect()
   const { address, isConnected } = useAccount()
@@ -789,7 +804,16 @@ export default function WalletSelector() {
                                 
                                 <div className="bg-black border border-[#00FF00] p-3 rounded-lg">
                                   <p className="text-gray-400 text-sm mb-1">Handle</p>
-                                  <p className="text-white text-lg font-bold">{selectedPlatformData.handle}</p>
+                                  <p className="text-white text-lg font-bold">
+                                    <a 
+                                      href={getPlatformUrl(selectedPlatformData.platform, selectedPlatformData.handle)}
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="hover:text-[#00FF00] hover:underline transition-colors"
+                                    >
+                                      {selectedPlatformData.handle}
+                                    </a>
+                                  </p>
                                 </div>
                                 
                                 <div className="bg-black border border-[#00FF00] p-3 rounded-lg">
@@ -827,7 +851,16 @@ export default function WalletSelector() {
                                 className="rounded"
                               />
                               <div>
-                                <p className="text-white font-bold">{data.handle}</p>
+                                <p className="text-white font-bold">
+                                  <a 
+                                    href={getPlatformUrl(data.platform, data.handle)}
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="hover:text-[#00FF00] hover:underline transition-colors"
+                                  >
+                                    {data.handle}
+                                  </a>
+                                </p>
                                 <p className="text-gray-400 text-sm">{data.followers.toLocaleString()} followers</p>
                               </div>
                             </div>

@@ -6,6 +6,21 @@ import { Press_Start_2P } from 'next/font/google';
 
 const pressStart = Press_Start_2P({ weight: "400", subsets: ["latin"] });
 
+// Add platform URL maps with template functions
+const getPlatformUrl = (platformId: string, handle: string): string => {
+  const urlMap: Record<string, (handle: string) => string> = {
+    x: (h) => `https://twitter.com/${h}`,
+    ig: (h) => `https://instagram.com/${h}`,
+    tg: (h) => `https://t.me/${h}`,
+    yt: (h) => `https://youtube.com/@${h}`,
+    tt: (h) => `https://tiktok.com/@${h}`,
+    fc: (h) => `https://warpcast.com/${h}`
+  };
+  
+  const urlGenerator = urlMap[platformId];
+  return urlGenerator ? urlGenerator(handle) : '#';
+};
+
 interface SocialAccount {
   handle: string;
   followers: number;
@@ -140,41 +155,72 @@ export default function KOLOnboarding() {
         return (
           <div className="text-center">
             <h2 className={`text-2xl font-bold mb-4 text-white ${pressStart.className}`}>Select Your Social Platforms</h2>
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-1 gap-4 mb-4">
               {socialPlatforms.map((platform) => (
-                <div key={platform.id} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id={platform.id}
-                    checked={formData.socialAccounts[platform.id] !== undefined}
-                    onChange={(e) => {
-                      const accounts = { ...formData.socialAccounts };
-                      if (e.target.checked) {
-                        accounts[platform.id] = { handle: '', followers: 0 };
-                      } else {
-                        delete accounts[platform.id];
-                      }
-                      setFormData({ ...formData, socialAccounts: accounts });
-                    }}
-                    className="w-4 h-4"
-                  />
-                  <label htmlFor={platform.id} className="flex items-center space-x-2">
-                    <Image
-                      src={platform.image}
-                      alt={platform.name}
-                      width={24}
-                      height={24}
-                      className="w-6 h-6"
-                    />
-                    <span className="text-white">{platform.name}</span>
-                  </label>
+                <div key={platform.id} className="bg-black border border-[#00FF00] p-3 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id={platform.id}
+                        checked={formData.socialAccounts[platform.id] !== undefined}
+                        onChange={(e) => {
+                          const accounts = { ...formData.socialAccounts };
+                          if (e.target.checked) {
+                            accounts[platform.id] = { handle: '', followers: 0 };
+                          } else {
+                            delete accounts[platform.id];
+                          }
+                          setFormData({ ...formData, socialAccounts: accounts });
+                        }}
+                        className="w-4 h-4"
+                      />
+                      <label htmlFor={platform.id} className="flex items-center space-x-2">
+                        <Image
+                          src={platform.image}
+                          alt={platform.name}
+                          width={24}
+                          height={24}
+                          className="w-6 h-6"
+                        />
+                        <span className="text-white">{platform.name}</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {formData.socialAccounts[platform.id] !== undefined && (
+                    <div className="mt-2">
+                      <input
+                        type="text"
+                        value={formData.socialAccounts[platform.id].handle || ''}
+                        onChange={(e) => {
+                          const accounts = { ...formData.socialAccounts };
+                          accounts[platform.id].handle = e.target.value;
+                          setFormData({ ...formData, socialAccounts: accounts });
+                        }}
+                        placeholder={`Enter your ${platform.name} username`}
+                        className="p-2 border rounded w-full bg-black border-[#00FF00] text-white"
+                      />
+                      {formData.socialAccounts[platform.id].handle && (
+                        <a
+                          href={getPlatformUrl(platform.id, formData.socialAccounts[platform.id].handle)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#00FF00] hover:underline text-xs mt-1 inline-block"
+                        >
+                          View Profile
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
             <div className="mt-4">
               <button
                 onClick={() => setStep(3)}
-                disabled={Object.keys(formData.socialAccounts).length === 0}
+                disabled={Object.keys(formData.socialAccounts).length === 0 || 
+                  Object.values(formData.socialAccounts).some(account => !account.handle)}
                 className={`px-4 py-2 bg-[#00FF00] text-black rounded hover:bg-[#00CC00] disabled:opacity-50 ${pressStart.className}`}
               >
                 Next
@@ -201,6 +247,16 @@ export default function KOLOnboarding() {
                       className="w-6 h-6"
                     />
                     <span className="text-white">{platform.name}</span>
+                    {formData.socialAccounts[platformId].handle && (
+                      <a
+                        href={getPlatformUrl(platformId, formData.socialAccounts[platformId].handle)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#00FF00] hover:underline text-xs ml-2"
+                      >
+                        ({formData.socialAccounts[platformId].handle})
+                      </a>
+                    )}
                   </div>
                   <select
                     value={formData.socialAccounts[platformId].followers || ''}
